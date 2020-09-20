@@ -9,20 +9,26 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php_version: [74]
+        php_version: ['7.4']
     steps:
       - uses: actions/checkout@v2
       - name: Build the Docker image
         env:
           PHP_VERSION: ${{ matrix.php_version }}
+          DOCKER_IMAGE: ${{ matrix.php_version }}-fpm
+          TEMPLATE: ${{ matrix.php_version }}-fpm-debian
+          IMAGE_TAG: noitran/php:${{ matrix.php_version }}-fpm-debian-latest
         run: |
-          export TAG_VERSION=${PHP_VERSION:0:1}.${PHP_VERSION:1:1}
-          docker build . --file Dockerfile-${{ matrix.php_version }} --tag noitran/php-fpm-base:latest-${TAG_VERSION}
+          sed -e 's/%%DOCKER_IMAGE%%/$(DOCKER_IMAGE)/g' $(TEMPLATE)/Dockerfile.template > $(TEMPLATE)/Dockerfile
+          docker build -t $(IMAGE_TAG) $(TEMPLATE)
           docker image ls
       - name: Test image which was built
         if: success()
         env:
           PHP_VERSION: ${{ matrix.php_version }}
+          DOCKER_IMAGE: ${{ matrix.php_version }}-fpm
+          TEMPLATE: ${{ matrix.php_version }}-fpm-debian
+          IMAGE_TAG: noitran/php:${{ matrix.php_version }}-fpm-debian-latest
         run: |
           echo "This is test"
       - name: Push image to Docker hub
@@ -30,7 +36,6 @@ jobs:
         env:
           PHP_VERSION: ${{ matrix.php_version }}
         run: |
-          export TAG_VERSION=${PHP_VERSION:0:1}.${PHP_VERSION:1:1}
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push noitran/php-fpm-base:latest-${TAG_VERSION}
+          docker push ${IMAGE_TAG}
           docker logout
