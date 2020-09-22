@@ -1,5 +1,7 @@
 name: Github Docker CI
 
+# https://github.community/t/support-saving-environment-variables-between-steps/16230/6
+
 on:
   push:
     branches: master
@@ -37,5 +39,6 @@ jobs:
           PHP_VERSION: ${{ matrix.php_version }}
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker images
           docker push ${IMAGE_TAG}
           docker logout
