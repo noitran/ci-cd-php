@@ -5,6 +5,8 @@ name: Github Docker CI
 on:
   push:
     branches: master
+  schedule:
+    - cron: 0 0 * * 6
 
 jobs:
   build:
@@ -18,29 +20,23 @@ jobs:
         env:
           PHP_VERSION: ${{ matrix.php_version }}
           DOCKER_IMAGE: ${{ matrix.php_version }}-fpm
-          TEMPLATE: ${{ matrix.php_version }}-fpm-debian
+          DOCKER_TEMPLATE: ${{ matrix.php_version }}-fpm-debian
           IMAGE_TAG: noitran/php-base:${{ matrix.php_version }}-fpm-debian-latest
         run: |
-          sed -e "s/%%DOCKER_IMAGE%%/${DOCKER_IMAGE}/g" ${TEMPLATE}/Dockerfile.template > ${TEMPLATE}/Dockerfile
-          docker build -t ${IMAGE_TAG} ${TEMPLATE}
+          echo "::set-env name=php_version::${PHP_VERSION}"
+          echo "::set-env name=docker_image::${DOCKER_IMAGE}"
+          echo "::set-env name=docker_template::${DOCKER_TEMPLATE}"
+          echo "::set-env name=image_tag::${IMAGE_TAG}"
+          sed -e "s/%%DOCKER_IMAGE%%/${DOCKER_IMAGE}/g" ${DOCKER_TEMPLATE}/Dockerfile.template > ${DOCKER_TEMPLATE}/Dockerfile
+          docker build -t ${IMAGE_TAG} ${DOCKER_TEMPLATE}
           docker image ls
       - name: Test image which was built
         if: success()
-        env:
-          PHP_VERSION: ${{ matrix.php_version }}
-          DOCKER_IMAGE: ${{ matrix.php_version }}-fpm
-          TEMPLATE: ${{ matrix.php_version }}-fpm-debian
-          IMAGE_TAG: noitran/php-base:${{ matrix.php_version }}-fpm-debian-latest
         run: |
-          echo "This is test"
+          GOSS_FILES_PATH=${{ env.docker_template }} dgoss run -t ${{ env.image_tag }}
       - name: Push image to Docker hub
         if: success()
-        env:
-          PHP_VERSION: ${{ matrix.php_version }}
-          DOCKER_IMAGE: ${{ matrix.php_version }}-fpm
-          TEMPLATE: ${{ matrix.php_version }}-fpm-debian
-          IMAGE_TAG: noitran/php-base:${{ matrix.php_version }}-fpm-debian-latest
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${IMAGE_TAG}
+          docker push ${{ env.image_tag }}
           docker logout
