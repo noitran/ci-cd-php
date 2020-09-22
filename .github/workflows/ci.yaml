@@ -37,8 +37,10 @@ jobs:
         if: success()
         env:
           PHP_VERSION: ${{ matrix.php_version }}
+          DOCKER_IMAGE: ${{ matrix.php_version }}-fpm
+          TEMPLATE: ${{ matrix.php_version }}-fpm-debian
+          IMAGE_TAG: noitran/php-base:${{ matrix.php_version }}-fpm-debian-latest
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker images
           docker push ${IMAGE_TAG}
           docker logout
