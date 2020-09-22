@@ -32,3 +32,11 @@ $ make test
 ```bash
 $ make doker-push
 ```
+
+## Useful Links
+
+Resources used:
+
+* [Run your GitHub Actions workflow on a schedule - Jason Etcovitch · jasonet.co](https://jasonet.co/posts/scheduled-actions/)
+
+* [Templating your Dockerfile like a boss! \| by Ahmed ElGamil | Dockbit](https://blog.dockbit.com/templating-your-dockerfile-like-a-boss-2a84a67d28e9)

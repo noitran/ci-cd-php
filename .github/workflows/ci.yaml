@@ -30,6 +30,7 @@ jobs:
           sed -e "s/%%DOCKER_IMAGE%%/${DOCKER_IMAGE}/g" ${DOCKER_TEMPLATE}/Dockerfile.template > ${DOCKER_TEMPLATE}/Dockerfile
           docker build -t ${IMAGE_TAG} ${DOCKER_TEMPLATE}
           docker image ls
+      - uses: e1himself/goss-installation-action
       - name: Test image which was built
         if: success()
         run: |
