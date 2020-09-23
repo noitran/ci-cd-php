@@ -6,6 +6,10 @@ ENV LANG="en_US.UTF-8" \
     LC_ALL="en_US.UTF-8" \
     LANGUAGE="en_US.UTF-8"
 
+ENV DEBIAN_FRONTEND noninteractive
+
+# ARG INSTALL_AMQP=false
+
 RUN set -eux; \
     apt-get update; \
     apt-get upgrade -y; \
@@ -31,3 +35,28 @@ RUN set -eux; \
             --with-jpeg \
             --with-freetype; \
     docker-php-ext-install gd
+
+# Install and Configure Amqp / RabbitMQ
+RUN if [ ${INSTALL_AMQP} = true ]; then \
+    set -eux; \
+    apt-get update && \
+    apt-get -y install cmake && \
+    curl -L -o /tmp/rabbitmq-c.tar.gz https://github.com/alanxz/rabbitmq-c/archive/master.tar.gz && \
+    mkdir -p rabbitmq-c && \
+    tar -C rabbitmq-c -zxvf /tmp/rabbitmq-c.tar.gz --strip 1 && \
+    cd rabbitmq-c/ && \
+    mkdir _build && cd _build/ && \
+    cmake .. && \
+    cmake --build . --target install && \
+    # Install the amqp extension
+    pecl install amqp && \
+    docker-php-ext-enable amqp && \
+    # Install the sockets extension
+    docker-php-ext-install sockets \
+;fi
+
+# Cleaning
+# Remove Build Dependencies
+RUN set -eux; \
+    apt-get -y purge cmake \
+    && apt-get -y autoremove

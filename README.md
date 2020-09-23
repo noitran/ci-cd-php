@@ -10,6 +10,8 @@ Repository has Dockerfiles with pre-installed PHP extensions:
 * pdo_mysql
 * pdo_pgsql
 * gd
+* amqp
+* sockets
 
 [Docker Images at Docker Hub](https://hub.docker.com/repository/docker/noitran/php-base/tags?page=1)
 

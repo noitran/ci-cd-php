@@ -1,4 +1,5 @@
-DOCKER_IMAGE ?= 7.4-fpm-alpine
+INSTALL_AMQP = true
+DOCKER_IMAGE ?= 7.4-fpm
 TEMPLATE ?= 7.4-fpm-alpine
 IMAGE_TAG ?= noitran/php-base:7.4-fpm-alpine-latest
 

@@ -7,6 +7,7 @@ ENV LANG="en_US.UTF-8" \
     LANGUAGE="en_US.UTF-8"
 
 ARG ALPINE_VERSION=3.12
+# ARG INSTALL_AMQP=true
 
 # Add Repositories
 RUN rm -f /etc/apk/repositories &&\
@@ -45,6 +46,20 @@ RUN set -eux; \
             --with-jpeg \
             --with-freetype; \
     docker-php-ext-install gd
+
+# Install and Configure Amqp / RabbitMQ
+# https://stackoverflow.com/questions/60709766/alpine-with-amqp-php-extension
+RUN if [ ${INSTALL_AMQP} = true ]; then \
+    set -eux; \
+    apk add --update --no-cache rabbitmq-c-dev && \
+    apk add --update --no-cache --virtual .phpize-deps $PHPIZE_DEPS && \
+    # Install the amqp extension
+    pecl install amqp && \
+    docker-php-ext-enable amqp && \
+    # Install the sockets extension
+    docker-php-ext-install sockets && \
+    apk del .phpize-deps \
+;fi
 
 # Cleaning
 # Remove Build Dependencies
