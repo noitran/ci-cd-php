@@ -12,6 +12,7 @@ jobs:
     strategy:
       matrix:
         php_version: ['7.4']
+        os_type: ['debian', 'alpine']
     steps:
       - uses: actions/checkout@v2
       - uses: e1himself/goss-installation-action@v1.0.1
@@ -19,8 +20,8 @@ jobs:
         env:
           PHP_VERSION: ${{ matrix.php_version }}
           DOCKER_IMAGE: ${{ matrix.php_version }}-fpm
-          DOCKER_TEMPLATE: ${{ matrix.php_version }}-fpm-debian
-          IMAGE_TAG: noitran/php-base:${{ matrix.php_version }}-fpm-debian-latest
+          DOCKER_TEMPLATE: ${{ matrix.php_version }}-fpm-${{ matrix.os_type }}
+          IMAGE_TAG: noitran/php-base:${{ matrix.php_version }}-fpm-${{ matrix.os_type }}-latest
         run: |
           echo "::set-env name=php_version::${PHP_VERSION}"
           echo "::set-env name=docker_image::${DOCKER_IMAGE}"

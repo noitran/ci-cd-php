@@ -1,6 +1,10 @@
 FROM php:%%DOCKER_IMAGE%%
 
-LABEL maintainer="noitran"
+LABEL maintainer="noitran.black@gmail.com"
+
+ENV LANG="en_US.UTF-8" \
+    LC_ALL="en_US.UTF-8" \
+    LANGUAGE="en_US.UTF-8"
 
 RUN set -eux; \
     apt-get update; \
