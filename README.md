@@ -1,6 +1,7 @@
 # <img src="docs/logo.png" alt="Noitran Logo" align="right"> Base PHP Docker Image
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/noitran/docker-php-base/Github%20Docker%20CI?style=flat-square)
+![Docker Pulls](https://img.shields.io/docker/pulls/noitran/php-base?style=flat-square)
 
 # About
 
@@ -42,3 +43,5 @@ Resources used:
 * [Templating your Dockerfile like a boss! \| by Ahmed ElGamil | Dockbit](https://blog.dockbit.com/templating-your-dockerfile-like-a-boss-2a84a67d28e9)
 
 * [Workflow syntax for GitHub Actions - GitHub Docs](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions)
+
+* [Support saving environment variables between steps - GitHub Actions - GitHub Support Community](https://github.community/t/support-saving-environment-variables-between-steps/16230/6)

@@ -1,0 +1,51 @@
+FROM php:%%DOCKER_IMAGE%%-alpine
+
+LABEL maintainer="noitran.black@gmail.com"
+
+ENV LANG="en_US.UTF-8" \
+    LC_ALL="en_US.UTF-8" \
+    LANGUAGE="en_US.UTF-8"
+
+ARG ALPINE_VERSION=3.12
+
+# Add Repositories
+RUN rm -f /etc/apk/repositories &&\
+    echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main" >> /etc/apk/repositories && \
+    echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories
+
+# Add Build Dependencies
+RUN set -eux; \
+    apk add --no-cache --virtual .build-deps \
+            zlib-dev \
+            libjpeg-turbo-dev \
+            libpng-dev \
+            libxml2-dev \
+            bzip2-dev
+
+# Add Production Dependencies
+RUN set -eux; \
+    apk add --update --no-cache \
+            curl \
+            jpegoptim \
+            pngquant \
+            optipng \
+            icu-dev \
+            freetype-dev \
+            postgresql-dev
+
+# Configure and Install PHP Extensions
+RUN set -eux; \
+    # Install the PHP pdo_mysql extention
+    docker-php-ext-install pdo_mysql; \
+    # Install the PHP pdo_pgsql extention
+    docker-php-ext-install pdo_pgsql; \
+    # Install the PHP gd library
+    docker-php-ext-configure gd \
+            --prefix=/usr \
+            --with-jpeg \
+            --with-freetype; \
+    docker-php-ext-install gd
+
+# Cleaning
+# Remove Build Dependencies
+RUN set -eux && apk del -f .build-deps
