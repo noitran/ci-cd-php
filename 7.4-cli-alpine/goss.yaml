@@ -1,7 +1,3 @@
-file:
-  /usr/local/etc/php/php.ini:
-    filetype: file
-    exists: true
 group:
   www-data:
     exists: true
