@@ -17,8 +17,6 @@ jobs:
       - uses: e1himself/goss-installation-action@v1.0.1
       - name: Build the Docker image
         env:
-          INSTALL_AMQP: true
-
           PHP_VERSION: ${{ matrix.php_version }}
           DOCKER_IMAGE: ${{ matrix.php_version }}-${{ matrix.php_type }}
           DOCKER_TEMPLATE: ${{ matrix.php_version }}-${{ matrix.php_type }}-${{ matrix.os_type }}
