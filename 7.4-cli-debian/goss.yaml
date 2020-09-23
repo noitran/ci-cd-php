@@ -21,4 +21,6 @@ command:
       - gd
       - pdo_mysql
       - pdo_pgsql
+      - amqp
+      - sockets
     exit-status: 0
