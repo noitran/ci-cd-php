@@ -62,7 +62,9 @@ RUN if [ ${INSTALL_AMQP} = true ]; then \
 ;fi
 
 # Copy opcache configration
-COPY ./opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+COPY ./configs/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+# Copy xdebug configuration
+COPY ./configs/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 # Cleaning
 # Remove Build Dependencies
