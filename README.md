@@ -13,6 +13,10 @@ Repository has Dockerfiles with pre-installed PHP extensions:
 * amqp
 * sockets
 
+Tools:
+
+* curl
+
 [Docker Images at Docker Hub](https://hub.docker.com/repository/docker/noitran/php-base/tags?page=1)
 
 ## Usage

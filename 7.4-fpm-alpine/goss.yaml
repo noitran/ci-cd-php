@@ -2,6 +2,9 @@ file:
   /usr/local/etc/php-fpm.conf:
     filetype: file
     exists: true
+  /usr/local/etc/php/conf.d/opcache.ini:
+    filetype: file
+    exists: true
 port:
   tcp6:9000:
     listening: true

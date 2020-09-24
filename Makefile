@@ -5,7 +5,7 @@ IMAGE_TAG ?= noitran/php-base:7.4-fpm-alpine-latest
 
 build:
 	sed -e 's/%%DOCKER_IMAGE%%/$(DOCKER_IMAGE)/g' $(TEMPLATE)/Dockerfile.template > $(TEMPLATE)/Dockerfile
-	docker build -t $(IMAGE_TAG) $(TEMPLATE)
+	docker build -f $(TEMPLATE)/Dockerfile . -t $(IMAGE_TAG)
 .PHONY: build
 
 test:
