@@ -20,6 +20,10 @@ jobs:
       - uses: e1himself/goss-installation-action@v1.0.1
       - name: Get git tag
         id: get_version
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+          fallback: v0.1.0
+          prefix: v
         run: echo ${{ steps.get_version.outputs.next }}
       - name: Build the Docker image
         env:
