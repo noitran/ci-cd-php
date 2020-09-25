@@ -17,6 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: e1himself/goss-installation-action@v1.0.1
+
       - name: Get git tag
         uses: PssbleTrngle/VersionManagment@v1.0.8
         id: get_version
@@ -24,7 +25,6 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
           fallback: v0.1.0
           prefix: v
-        run: echo ${{ steps.get_version.outputs.next }}
 
       - name: Build the Docker image
         env:
@@ -44,10 +44,12 @@ jobs:
           sed -e "s/%%DOCKER_IMAGE%%/${DOCKER_IMAGE}/g" ${DOCKER_TEMPLATE}/Dockerfile.template > ${DOCKER_TEMPLATE}/Dockerfile
           docker build -f ${DOCKER_TEMPLATE}/Dockerfile . -t ${IMAGE_TAG}-latest
           docker image ls
+
       - name: Test image which was built
         if: success()
         run: |
           GOSS_FILES_PATH=${{ env.docker_template }} dgoss run -t ${{ env.image_tag_latest }}
+
       - name: Push image to Docker hub
         if: success()
         run: |
