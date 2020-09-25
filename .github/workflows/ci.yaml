@@ -23,25 +23,27 @@ jobs:
           DOCKER_IMAGE: ${{ matrix.php_version }}-${{ matrix.php_type }}
           DOCKER_TEMPLATE: ${{ matrix.php_version }}-${{ matrix.php_type }}-${{ matrix.os_type }}
           IMAGE_TAG_BASE: noitran/php-base:${{ matrix.php_version }}-${{ matrix.php_type }}-${{ matrix.os_type }}
+          IMAGE_TAG_LATEST: ${{ IMAGE_TAG_BASE }}-latest
+          IMAGE_TAG_VERSIONED: ${{ IMAGE_TAG_BASE }}-${{ github.event.release.tag_name }}
         run: |
           echo "::set-env name=php_version::${PHP_VERSION}"
           echo "::set-env name=docker_image::${DOCKER_IMAGE}"
           echo "::set-env name=docker_template::${DOCKER_TEMPLATE}"
-          echo "::set-env name=image_tag_latest::${IMAGE_TAG_BASE}-latest"
-          echo "::set-env name=image_tag_versioned::${IMAGE_TAG_BASE}-${{ github.event.release.tag_name }}"
+          echo "::set-env name=image_tag_latest::${IMAGE_TAG_LATEST}"
+          echo "::set-env name=image_tag_versioned::${IMAGE_TAG_VERSIONED}"
 
           sed -e "s/%%DOCKER_IMAGE%%/${DOCKER_IMAGE}/g" ${DOCKER_TEMPLATE}/Dockerfile.template > ${DOCKER_TEMPLATE}/Dockerfile
-          docker build -f ${DOCKER_TEMPLATE}/Dockerfile . -t ${{ image_tag_latest }}
+          docker build -f ${DOCKER_TEMPLATE}/Dockerfile . -t ${{ env.image_tag_latest }}
           docker image ls
       - name: Test image which was built
         if: success()
         run: |
-          GOSS_FILES_PATH=${{ env.docker_template }} dgoss run -t ${{ image_tag_latest }}
+          GOSS_FILES_PATH=${{ env.docker_template }} dgoss run -t ${{ env.image_tag_latest }}
       - name: Push image to Docker hub
         if: success()
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ image_tag_latest }}
-          docker tag ${{ image_tag_latest }} ${{ image_tag_versioned }}
-          docker push ${{ image_tag_versioned }}
+          docker push ${{ env.image_tag_latest }}
+          docker tag ${{ env.image_tag_latest }} ${{ env.image_tag_versioned }}
+          docker push ${{ env.image_tag_versioned }}
           docker logout
