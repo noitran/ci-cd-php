@@ -15,16 +15,17 @@ jobs:
         os_type: ['debian', 'alpine']
         php_type: ['fpm', 'cli']
     steps:
-      - uses: PssbleTrngle/VersionManagment@v1.0.8
       - uses: actions/checkout@v2
       - uses: e1himself/goss-installation-action@v1.0.1
       - name: Get git tag
+        uses: PssbleTrngle/VersionManagment@v1.0.8
         id: get_version
         with:
           token: ${{secrets.GITHUB_TOKEN}}
           fallback: v0.1.0
           prefix: v
         run: echo ${{ steps.get_version.outputs.next }}
+
       - name: Build the Docker image
         env:
           PHP_VERSION: ${{ matrix.php_version }}
