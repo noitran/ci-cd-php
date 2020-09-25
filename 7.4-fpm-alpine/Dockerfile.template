@@ -17,21 +17,15 @@ RUN rm -f /etc/apk/repositories &&\
 # Add Build Dependencies
 RUN set -eux; \
     apk add --no-cache --virtual .build-deps \
-            zlib-dev \
-            libjpeg-turbo-dev \
-            libpng-dev \
-            libxml2-dev \
-            bzip2-dev
+            zlib-dev
 
 # Add Production Dependencies
 RUN set -eux; \
     apk add --update --no-cache \
             curl \
-            jpegoptim \
-            pngquant \
-            optipng \
+            # For ext-intl
             icu-dev \
-            freetype-dev \
+            # for pdo_pgsql
             postgresql-dev
 
 # Configure and Install PHP Extensions
@@ -40,12 +34,9 @@ RUN set -eux; \
     docker-php-ext-install pdo_mysql; \
     # Install the PHP pdo_pgsql extention
     docker-php-ext-install pdo_pgsql; \
-    # Install the PHP gd library
-    docker-php-ext-configure gd \
-            --prefix=/usr \
-            --with-jpeg \
-            --with-freetype; \
-    docker-php-ext-install gd
+    # Install other modules
+    docker-php-ext-install intl \
+        pcntl
 
 # Install and Configure Amqp / RabbitMQ
 # https://stackoverflow.com/questions/60709766/alpine-with-amqp-php-extension

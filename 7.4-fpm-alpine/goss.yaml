@@ -45,9 +45,10 @@ command:
     exit-status: 0
   "php -m":
     stdout:
-      - gd
       - pdo_mysql
       - pdo_pgsql
       - amqp
       - sockets
+      - intl
+      - pcntl
     exit-status: 0
