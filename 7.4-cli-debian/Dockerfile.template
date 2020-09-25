@@ -12,29 +12,32 @@ ARG INSTALL_AMQP=true
 
 RUN set -eux; \
     apt-get update; \
-    apt-get upgrade -y; \
+    apt-get upgrade -y
+
+# Add Build Dependencies
+RUN set -eux; \
+    apt-get install -y --no-install-recommends \
+            libz-dev \
+            # For ext-intl
+            libicu-dev \
+            # For pdo_pgsql
+            libpq-dev \
+            libssl-dev
+
+# Add Production Dependencies
+RUN set -eux; \
     apt-get install -y --no-install-recommends \
             curl \
-            libz-dev \
-            libpq-dev \
-            libjpeg-dev \
-            libpng-dev \
-            libfreetype6-dev \
-            libssl-dev \
-            libonig-dev; \
-    rm -rf /var/lib/apt/lists/*
+            libpq5
 
 RUN set -eux; \
     # Install the PHP pdo_mysql extention
     docker-php-ext-install pdo_mysql; \
     # Install the PHP pdo_pgsql extention
     docker-php-ext-install pdo_pgsql; \
-    # Install the PHP gd library
-    docker-php-ext-configure gd \
-            --prefix=/usr \
-            --with-jpeg \
-            --with-freetype; \
-    docker-php-ext-install gd
+    # Install other modules
+    docker-php-ext-install intl \
+        pcntl
 
 # Install and Configure Amqp / RabbitMQ
 RUN if [ ${INSTALL_AMQP} = true ]; then \
@@ -61,6 +64,15 @@ COPY ./configs/xdebug.ini /usr/local/etc/php/conf.d/
 
 # Cleaning
 # Remove Build Dependencies
+#
+# After compilation it is safe to remove all *-dev dependencies, but need to ensure that packages that
+# are installed with -dev deps are listed separateley. Example: apt install libpq5 libpq-dev
 RUN set -eux; \
-    apt-get -y purge cmake \
-    && apt-get -y autoremove
+    apt-get -y purge \
+        cmake \
+        libz-dev \
+        libicu-dev \
+        libpq-dev \
+        libssl-dev; \
+    apt-get -y autoremove; \
+    rm -rf /var/lib/apt/lists/*

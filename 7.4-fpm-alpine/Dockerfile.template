@@ -16,16 +16,14 @@ RUN rm -f /etc/apk/repositories &&\
 
 # Add Build Dependencies
 RUN set -eux; \
-    apk add --no-cache --virtual .build-deps \
-            zlib-dev
+    apk add --update --no-cache --virtual .build-deps \
+            zlib-dev \
+            icu-dev
 
 # Add Production Dependencies
 RUN set -eux; \
     apk add --update --no-cache \
             curl \
-            # For ext-intl
-            icu-dev \
-            # for pdo_pgsql
             postgresql-dev
 
 # Configure and Install PHP Extensions
