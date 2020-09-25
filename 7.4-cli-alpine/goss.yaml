@@ -1,14 +1,19 @@
 file:
+  /usr/local/etc/php/conf.d/php.ini:
+    filetype: file
+    exists: true
+    contains:
+      - "date.timezone = UTC"
   /usr/local/etc/php/conf.d/opcache.ini:
     filetype: file
     exists: true
     contains:
-      - "opcache.enable=1"
+      - "opcache.enable = 1"
   /usr/local/etc/php/conf.d/xdebug.ini:
     filetype: file
     exists: true
     contains:
-      - "xdebug.remote_enable=1"
+      - "xdebug.remote_enable = 1"
 group:
   www-data:
     exists: true

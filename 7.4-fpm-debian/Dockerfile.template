@@ -55,10 +55,9 @@ RUN if [ ${INSTALL_AMQP} = true ]; then \
     docker-php-ext-install sockets \
 ;fi
 
-# Copy opcache configration
-COPY ./configs/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-# Copy xdebug configuration
-COPY ./configs/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+COPY ./configs/php.ini /usr/local/etc/php/conf.d/
+COPY ./configs/opcache.ini /usr/local/etc/php/conf.d/
+COPY ./configs/xdebug.ini /usr/local/etc/php/conf.d/
 
 # Cleaning
 # Remove Build Dependencies
