@@ -26,6 +26,7 @@ jobs:
           IMAGE_TAG: noitran/php-base:${{ matrix.php_version }}-${{ matrix.php_type }}-${{ matrix.os_type }}
           IMAGE_TAG_LATEST: noitran/php-base:${{ matrix.php_version }}-${{ matrix.php_type }}-${{ matrix.os_type }}-latest
         run: |
+          echo ${{ steps.get_version.outputs.version }}
           echo "::set-env name=php_version::${PHP_VERSION}"
           echo "::set-env name=docker_image::${DOCKER_IMAGE}"
           echo "::set-env name=docker_template::${DOCKER_TEMPLATE}"
