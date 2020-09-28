@@ -1,6 +1,6 @@
 DOCKER_IMAGE ?= 7.4-fpm
-TEMPLATE ?= 7.4-fpm-debian
-IMAGE_TAG ?= noitran/php-base:7.4-fpm-debian-latest
+TEMPLATE ?= 7.4-fpm-alpine
+IMAGE_TAG ?= noitran/php-base:7.4-fpm-alpine-latest
 
 build:
 	sed -e 's/%%DOCKER_IMAGE%%/$(DOCKER_IMAGE)/g' $(TEMPLATE)/Dockerfile.template > $(TEMPLATE)/Dockerfile
