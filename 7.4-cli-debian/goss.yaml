@@ -8,12 +8,7 @@ file:
     filetype: file
     exists: true
     contains:
-      - "opcache.enable = 1"
-  /usr/local/etc/php/conf.d/xdebug.ini:
-    filetype: file
-    exists: true
-    contains:
-      - "xdebug.remote_enable = 1"
+      - "opcache.memory_consumption = 256"
 group:
   www-data:
     exists: true
@@ -36,6 +31,7 @@ command:
     stdout:
       - pdo_mysql
       - pdo_pgsql
+      - OPcache
       - amqp
       - sockets
       - intl

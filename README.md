@@ -9,6 +9,7 @@ Repository has Dockerfiles with pre-installed PHP extensions:
 
 * pdo_mysql
 * pdo_pgsql
+* OPcache
 * amqp
 * sockets
 * pcntl

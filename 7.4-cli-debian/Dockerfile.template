@@ -2,12 +2,16 @@ FROM php:%%DOCKER_IMAGE%%
 
 LABEL maintainer="noitran.black@gmail.com"
 
-ENV LANG="en_US.UTF-8" \
-    LC_ALL="en_US.UTF-8" \
-    LANGUAGE="en_US.UTF-8"
+ENV LANG="en_US.UTF-8"
+ENV LC_ALL="en_US.UTF-8"
+ENV LANGUAGE="en_US.UTF-8"
 
 ENV DEBIAN_FRONTEND noninteractive
 
+ENV PHP_OPCACHE_ENABLE="1"
+ENV PHP_OPCACHE_ENABLE_CLI="1"
+
+ARG INSTALL_OPCACHE=true
 ARG INSTALL_AMQP=true
 
 RUN set -eux; \
@@ -39,6 +43,13 @@ RUN set -eux; \
     docker-php-ext-install intl \
         pcntl
 
+# If you want to use OPcache with Xdebug, you must load OPcache before Xdebug !
+# https://www.php.net/manual/en/opcache.installation.php
+RUN if [ ${INSTALL_OPCACHE} = true ]; then \
+    set -eux; \
+    docker-php-ext-install opcache \
+;fi
+
 # Install and Configure Amqp / RabbitMQ
 RUN if [ ${INSTALL_AMQP} = true ]; then \
     set -eux; \
@@ -60,7 +71,6 @@ RUN if [ ${INSTALL_AMQP} = true ]; then \
 
 COPY ./configs/php.ini /usr/local/etc/php/conf.d/
 COPY ./configs/opcache.ini /usr/local/etc/php/conf.d/
-COPY ./configs/xdebug.ini /usr/local/etc/php/conf.d/
 
 # Cleaning
 # Remove Build Dependencies

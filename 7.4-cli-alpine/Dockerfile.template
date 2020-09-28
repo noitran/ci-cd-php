@@ -2,17 +2,27 @@ FROM php:%%DOCKER_IMAGE%%-alpine
 
 LABEL maintainer="noitran.black@gmail.com"
 
-ENV LANG="en_US.UTF-8" \
-    LC_ALL="en_US.UTF-8" \
-    LANGUAGE="en_US.UTF-8"
+ENV LANG="en_US.UTF-8"
+ENV LC_ALL="en_US.UTF-8"
+ENV LANGUAGE="en_US.UTF-8"
+
+ENV PHP_OPCACHE_ENABLE="1"
+ENV PHP_OPCACHE_ENABLE_CLI="1"
 
 ARG ALPINE_VERSION=3.12
+ARG INSTALL_OPCACHE=true
 ARG INSTALL_AMQP=true
 
 # Add Repositories
-RUN rm -f /etc/apk/repositories &&\
+RUN set -eux; \
+    rm -f /etc/apk/repositories &&\
     echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main" >> /etc/apk/repositories && \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories
+    echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories && \
+    apk update
+
+# Temporary Build depencencies for compiling Pecl extensions
+RUN set -eux; \
+    apk add --update --no-cache --virtual .phpize-deps $PHPIZE_DEPS
 
 # Add Build Dependencies
 RUN set -eux; \
@@ -36,24 +46,30 @@ RUN set -eux; \
     docker-php-ext-install intl \
         pcntl
 
+# If you want to use OPcache with Xdebug, you must load OPcache before Xdebug !
+# https://www.php.net/manual/en/opcache.installation.php
+RUN if [ ${INSTALL_OPCACHE} = true ]; then \
+    set -eux; \
+    docker-php-ext-install opcache \
+;fi
+
 # Install and Configure Amqp / RabbitMQ
 # https://stackoverflow.com/questions/60709766/alpine-with-amqp-php-extension
 RUN if [ ${INSTALL_AMQP} = true ]; then \
     set -eux; \
     apk add --update --no-cache rabbitmq-c-dev && \
-    apk add --update --no-cache --virtual .phpize-deps $PHPIZE_DEPS && \
     # Install the amqp extension
     pecl install amqp && \
     docker-php-ext-enable amqp && \
     # Install the sockets extension
-    docker-php-ext-install sockets && \
-    apk del .phpize-deps \
+    docker-php-ext-install sockets \
 ;fi
 
 COPY ./configs/php.ini /usr/local/etc/php/conf.d/
 COPY ./configs/opcache.ini /usr/local/etc/php/conf.d/
-COPY ./configs/xdebug.ini /usr/local/etc/php/conf.d/
 
 # Cleaning
 # Remove Build Dependencies
-RUN set -eux && apk del -f .build-deps
+RUN set -eux && \
+    apk del -f .build-deps && \
+    apk del -f .phpize-deps
