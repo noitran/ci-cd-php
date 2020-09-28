@@ -1,4 +1,3 @@
-INSTALL_AMQP = true
 DOCKER_IMAGE ?= 7.4-fpm
 TEMPLATE ?= 7.4-fpm-debian
 IMAGE_TAG ?= noitran/php-base:7.4-fpm-debian-latest

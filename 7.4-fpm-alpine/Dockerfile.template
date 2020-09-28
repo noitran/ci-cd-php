@@ -10,9 +10,11 @@ ARG ALPINE_VERSION=3.12
 ARG INSTALL_AMQP=true
 
 # Add Repositories
-RUN rm -f /etc/apk/repositories &&\
+RUN set -eux; \
+    rm -f /etc/apk/repositories &&\
     echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main" >> /etc/apk/repositories && \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories
+    echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories &&
+    apk update
 
 # Add Build Dependencies
 RUN set -eux; \

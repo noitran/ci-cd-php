@@ -38,7 +38,7 @@ $ make test
 ### Pushing to Docker Hub
 
 ```bash
-$ make doker-push
+$ make docker-push
 ```
 
 ## Useful Links
