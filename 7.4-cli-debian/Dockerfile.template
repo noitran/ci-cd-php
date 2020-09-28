@@ -21,7 +21,6 @@ RUN set -eux; \
 # Add Build Dependencies
 RUN set -eux; \
     apt-get install -y --no-install-recommends \
-            libz-dev \
             # For ext-intl
             libicu-dev \
             # For pdo_pgsql

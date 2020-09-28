@@ -27,7 +27,6 @@ RUN set -eux; \
 # Add Build Dependencies
 RUN set -eux; \
     apk add --update --no-cache --virtual .build-deps \
-            zlib-dev \
             icu-dev
 
 # Add Production Dependencies
