@@ -48,3 +48,8 @@ command:
       - intl
       - pcntl
     exit-status: 0
+  "php --info":
+    stdout:
+      - opcache.enable => On => On
+      - opcache.enable_cli => On => On
+    exit-status: 0
