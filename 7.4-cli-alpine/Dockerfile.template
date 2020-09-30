@@ -10,6 +10,8 @@ ENV PHP_OPCACHE_ENABLE="1"
 ENV PHP_OPCACHE_ENABLE_CLI="1"
 
 ARG ALPINE_VERSION=3.12
+ARG PECL_AMQP_VERSION=1.10.2
+
 ARG INSTALL_OPCACHE=true
 ARG INSTALL_AMQP=true
 
@@ -58,7 +60,7 @@ RUN if [ ${INSTALL_AMQP} = true ]; then \
     set -eux; \
     apk add --update --no-cache rabbitmq-c-dev && \
     # Install the amqp extension
-    pecl install amqp && \
+    pecl install amqp-${PECL_AMQP_VERSION} && \
     docker-php-ext-enable amqp && \
     # Install the sockets extension
     docker-php-ext-install sockets \
