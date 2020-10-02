@@ -25,7 +25,7 @@ RUN set -eux; \
             libicu-dev \
             # For pdo_pgsql
             libpq-dev \
-            libssl-dev &&
+            libssl-dev && \
     # Add Production Dependencies
     apt-get install -y --no-install-recommends \
             curl \
