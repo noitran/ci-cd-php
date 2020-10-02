@@ -16,26 +16,20 @@ ARG INSTALL_AMQP=true
 
 ARG PECL_AMQP_VERSION=1.10.2
 
+# Add Build Dependencies
 RUN set -eux; \
     apt-get update; \
     apt-get upgrade -y
-
-# Add Build Dependencies
-RUN set -eux; \
     apt-get install -y --no-install-recommends \
             # For ext-intl
             libicu-dev \
             # For pdo_pgsql
             libpq-dev \
             libssl-dev
-
-# Add Production Dependencies
-RUN set -eux; \
+    # Add Production Dependencies
     apt-get install -y --no-install-recommends \
             curl \
             libpq5
-
-RUN set -eux; \
     # Install the PHP pdo_mysql extention
     docker-php-ext-install pdo_mysql; \
     # Install the PHP pdo_pgsql extention
