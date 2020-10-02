@@ -29,7 +29,7 @@ RUN set -eux; \
     # Add Production Dependencies
     apt-get install -y --no-install-recommends \
             curl \
-            libpq5 &&
+            libpq5 && \
     # Install the PHP pdo_mysql extention
     docker-php-ext-install pdo_mysql && \
     # Install the PHP pdo_pgsql extention
