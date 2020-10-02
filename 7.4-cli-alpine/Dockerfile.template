@@ -19,58 +19,48 @@ ARG INSTALL_AMQP=true
 RUN set -eux; \
     rm -f /etc/apk/repositories &&\
     echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/main" >> /etc/apk/repositories && \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories && \
-    apk update
+    echo "http://dl-cdn.alpinelinux.org/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories
 
-# Temporary Build depencencies for compiling Pecl extensions
 RUN set -eux; \
-    apk add --update --no-cache --virtual .phpize-deps $PHPIZE_DEPS
-
-# Add Build Dependencies
-RUN set -eux; \
-    apk add --update --no-cache --virtual .build-deps \
-            icu-dev
-
-# Add Production Dependencies
-RUN set -eux; \
+    # Temporary Build depencencies for compiling Pecl extensions
+    apk add --update --no-cache --virtual .local-build-deps $PHPIZE_DEPS icu-dev && \
+    # Add Build Dependencies
+    apk add --update --no-cache --virtual .local-build-deps \
+        icu-dev && \
+    # Add Production Dependencies
     apk add --update --no-cache \
-            curl \
-            postgresql-dev
-
-# Configure and Install PHP Extensions
-RUN set -eux; \
-    # Install the PHP pdo_mysql extention
-    docker-php-ext-install pdo_mysql; \
-    # Install the PHP pdo_pgsql extention
-    docker-php-ext-install pdo_pgsql; \
-    # Install other modules
-    docker-php-ext-install intl \
-        pcntl
+        curl \
+        postgresql-dev && \
+    # Configure and Install PHP Extensions
+    docker-php-ext-install \
+        pdo_mysql \
+        pdo_pgsql \
+        intl \
+        pcntl && \
+    apk del -f .local-build-deps
 
 # If you want to use OPcache with Xdebug, you must load OPcache before Xdebug !
 # https://www.php.net/manual/en/opcache.installation.php
 RUN if [ ${INSTALL_OPCACHE} = true ]; then \
     set -eux; \
-    docker-php-ext-install opcache \
+    apk add --update --no-cache --virtual .phpize-deps $PHPIZE_DEPS && \
+    docker-php-ext-install opcache && \
+    apk del -f .phpize-deps \
 ;fi
 
 # Install and Configure Amqp / RabbitMQ
 # https://stackoverflow.com/questions/60709766/alpine-with-amqp-php-extension
 RUN if [ ${INSTALL_AMQP} = true ]; then \
     set -eux; \
+    apk add --update --no-cache --virtual .phpize-deps $PHPIZE_DEPS && \
     apk add --update --no-cache rabbitmq-c-dev && \
     # Install the amqp extension
     pecl install amqp-${PECL_AMQP_VERSION} && \
     docker-php-ext-enable amqp && \
     # Install the sockets extension
-    docker-php-ext-install sockets \
+    docker-php-ext-install sockets && \
+    apk del -f .phpize-deps \
 ;fi
 
 COPY ./configs/php.ini /usr/local/etc/php/conf.d/
 COPY ./configs/opcache.ini /usr/local/etc/php/conf.d/
-
-# Cleaning
-# Remove Build Dependencies
-RUN set -eux && \
-    apk del -f .build-deps && \
-    apk del -f .phpize-deps
