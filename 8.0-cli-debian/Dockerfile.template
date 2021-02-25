@@ -1,0 +1,90 @@
+FROM php:%%DOCKER_IMAGE%%
+
+LABEL maintainer="noitran.black@gmail.com"
+
+ENV LANG="en_US.UTF-8"
+ENV LC_ALL="en_US.UTF-8"
+ENV LANGUAGE="en_US.UTF-8"
+
+ENV DEBIAN_FRONTEND noninteractive
+
+ENV PHP_OPCACHE_ENABLE="1"
+ENV PHP_OPCACHE_ENABLE_CLI="1"
+
+ARG INSTALL_OPCACHE=true
+ARG INSTALL_AMQP=true
+
+ARG PECL_AMQP_VERSION=1.10.2
+
+# Add Build Dependencies
+RUN set -eux; \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+            # For ext-intl
+            libicu-dev \
+            # For pdo_pgsql
+            libpq-dev \
+            libssl-dev && \
+    # Add Production Dependencies
+    apt-get install -y --no-install-recommends \
+            curl \
+            libpq5 && \
+    # Install the PHP pdo_mysql extention
+    docker-php-ext-install pdo_mysql && \
+    # Install the PHP pdo_pgsql extention
+    docker-php-ext-install pdo_pgsql && \
+    # Install other modules
+    docker-php-ext-install intl \
+        pcntl
+
+# If you want to use OPcache with Xdebug, you must load OPcache before Xdebug !
+# https://www.php.net/manual/en/opcache.installation.php
+RUN if [ ${INSTALL_OPCACHE} = true ]; then \
+    set -eux; \
+    docker-php-ext-install opcache \
+;fi
+
+# COPY --from=ext-amqp /usr/local/etc/php/conf.d/docker-php-ext-amqp.ini /tmp/docker-php-ext-amqp.ini
+# COPY --from=ext-amqp /usr/local/lib/php/extensions/no-debug-non-zts-20200930/amqp.so /tmp/amqp.so
+
+# Install and Configure Amqp / RabbitMQ
+RUN if [ ${INSTALL_AMQP} = true ]; then \
+    set -eux; \
+    apt-get update && \
+    apt-get -y install cmake && \
+    curl -L -o /tmp/rabbitmq-c.tar.gz https://github.com/alanxz/rabbitmq-c/archive/master.tar.gz && \
+    mkdir -p rabbitmq-c && \
+    tar -C rabbitmq-c -zxvf /tmp/rabbitmq-c.tar.gz --strip 1 && \
+    cd rabbitmq-c/ && \
+    mkdir _build && cd _build/ && \
+    cmake .. && \
+    cmake --build . --target install && \
+    # Install the amqp extension
+    curl -L -o /tmp/amqp.tar.gz https://github.com/php-amqp/php-amqp/archive/master.tar.gz && \
+    mkdir -p /usr/src/php/ext/amqp && \
+    cd /usr/src/php/ext && \
+    tar -C amqp -zxvf /tmp/amqp.tar.gz --strip 1 && \
+    cd /usr/src/php/ext/amqp && \
+    docker-php-ext-install amqp && \
+    # Install the sockets extension
+    docker-php-ext-install sockets \
+;fi
+
+COPY ./configs/php.ini /usr/local/etc/php/conf.d/
+COPY ./configs/opcache.ini /usr/local/etc/php/conf.d/
+
+# Cleaning
+# Remove Build Dependencies
+#
+# After compilation it is safe to remove all *-dev dependencies, but need to ensure that packages that
+# are installed with -dev deps are listed separateley. Example: apt install libpq5 libpq-dev
+RUN set -eux; \
+    apt-get -y purge \
+        cmake \
+        libz-dev \
+        libicu-dev \
+        libpq-dev \
+        libssl-dev; \
+    apt-get -y autoremove; \
+    rm -rf /var/lib/apt/lists/*
